@@ -1,32 +1,29 @@
 package com.example.todoapp.ui.detail
 
 import android.util.Log
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.data.Todo
 import com.example.todoapp.data.TodoDataSource
 import com.example.todoapp.data.TodoDataSourceContract
 import com.google.common.truth.Truth
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
-import org.junit.Before
+import kotlinx.coroutines.test.*
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
+@ExperimentalCoroutinesApi
 class DetailViewModelTest {
+
+//    private val scheduler = TestCoroutineScheduler()
     //Steps
     //1. Create a companion object with fake state for both create and update + list of all todos
     //2. Initialize the view model class - 2 scenarios (with and without provided id)
@@ -78,13 +75,18 @@ class DetailViewModelTest {
         Truth.assertThat(currentDetailState.time).isEqualTo("")
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @get:Rule
+    var coroutinesTestRule = CoroutinesTestRule()
+
     @Test
     fun coroutinesTest() = runTest {
-        val viewModel = DetailViewModel(todoDataSource, id = 1)
-        viewModel.viewModelScope.launch{
 
-        }
+        Mockito.`when`(todoDataSource.getAllTodos()).thenReturn(todos)
+        val viewModel = DetailViewModel(todoDataSource, id = 1)
+
+//        var currentDetailState = viewModel.state.value
+//        Truth.assertThat(currentDetailState.selectId).isEqualTo(1L)
+//        scheduler.runCurrent()
     }
 
 //    @Test
@@ -104,5 +106,22 @@ class DetailViewModelTest {
         Truth.assertThat(currentDetailState.selectId).isEqualTo(-1L)
         Truth.assertThat(currentDetailState.todo).isEqualTo("")
         Truth.assertThat(currentDetailState.time).isEqualTo("")
+    }
+
+}
+
+@ExperimentalCoroutinesApi
+class CoroutinesTestRule(
+    val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
+) : TestWatcher() {
+
+    override fun starting(description: Description?) {
+        super.starting(description)
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    override fun finished(description: Description?) {
+        super.finished(description)
+        Dispatchers.resetMain()
     }
 }
