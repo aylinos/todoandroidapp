@@ -95,6 +95,7 @@ dependencies {
 
     // Tests
     testImplementation "com.google.truth:truth:1.0.1"
+    androidTestImplementation "com.google.truth:truth:1.0.1"
 
     // Testing
     testImplementation "junit:junit:$junitVersion"

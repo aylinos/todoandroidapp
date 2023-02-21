@@ -37,21 +37,23 @@ class DetailViewModel (
         }
     }
 
-    init {
+    init{
         viewModelScope.launch {
-            todoDataSource.getAllTodos().collect { todo -> //selectAll
+            todoDataSource.getAllTodos()
+                .collect {  //selectAll
                 //get data if todo is completed or not
-                todo.find {
+                it.find {
                     it.id == id
                 }.also {
                     selectId.value = it?.id ?: -1
                     if (selectId.value != -1L) {
                         todoText.value = it?.todo ?: ""
                         todoTime.value = it?.time ?: ""
-
+                        _state.value = DetailViewState(todoText.value, todoTime.value, id)
                     }
                 }
             }
+
         }
 
     }
