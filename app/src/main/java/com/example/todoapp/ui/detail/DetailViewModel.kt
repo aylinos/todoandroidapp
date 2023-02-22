@@ -27,7 +27,6 @@ class DetailViewModel (
         get() = _state
 
     init {
-        //fill in the values with the respective values for the passed todo
         viewModelScope.launch {
             combine(todoText, todoTime, selectId) { text, time, id ->
                 DetailViewState(text, time, id)
@@ -39,9 +38,7 @@ class DetailViewModel (
 
     init{
         viewModelScope.launch {
-            todoDataSource.getAllTodos()
-                .collect {  //selectAll
-                //get data if todo is completed or not
+            todoDataSource.getAllTodos().collect {
                 it.find {
                     it.id == id
                 }.also {
@@ -49,7 +46,6 @@ class DetailViewModel (
                     if (selectId.value != -1L) {
                         todoText.value = it?.todo ?: ""
                         todoTime.value = it?.time ?: ""
-                        _state.value = DetailViewState(todoText.value, todoTime.value, id)
                     }
                 }
             }
