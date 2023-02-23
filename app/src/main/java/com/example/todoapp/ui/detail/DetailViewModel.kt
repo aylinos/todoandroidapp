@@ -63,7 +63,7 @@ class DetailViewModel (
     }
 
     fun insert(todo: Todo) = viewModelScope.launch {
-        Log.d("DetailViewModel", "Input from detail screen on create new: ${todo.id}")
+//        Log.d("DetailViewModel", "Input from detail screen on create new: ${todo.id}")
         todoDataSource.insertTodo(todo)
     }
 }

@@ -5,13 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.todoapp.Graph
 import com.example.todoapp.data.Todo
 import com.example.todoapp.data.TodoDataSource
+import com.example.todoapp.data.TodoDataSourceContract
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 //Home page
-class HomeViewModel(private val todoDataSource: TodoDataSource = Graph.todoRepo) : ViewModel() {
+class HomeViewModel(private val todoDataSource: TodoDataSourceContract = Graph.todoRepo) : ViewModel() {
     private val _state = MutableStateFlow(HomeViewState())
     val state: StateFlow<HomeViewState>
         get() = _state

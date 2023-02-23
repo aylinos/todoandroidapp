@@ -5,8 +5,7 @@ import com.example.todoapp.data.TodoDataSourceContract
 import com.google.common.truth.Truth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
@@ -71,16 +70,57 @@ class DetailViewModelTest {
 
     @Test
     fun detailViewModel_IdProvided_FilledPageLoaded()  {
-        val viewModel = DetailViewModel(fakeTodoDataSource, id = 1)
+        val viewModel = DetailViewModel(fakeTodoDataSource, id = todo.id)
 
         var currentDetailState = viewModel.state.value
         println("#######$currentDetailState")
 
-        Truth.assertThat(currentDetailState.selectId).isEqualTo(1L)
-        Truth.assertThat(currentDetailState.todo).isEqualTo("Fake todo")
-        Truth.assertThat(currentDetailState.time).isEqualTo("13pm")
+        Truth.assertThat(currentDetailState.selectId).isEqualTo(todo.id)
+        Truth.assertThat(currentDetailState.todo).isEqualTo(todo.todo)
+        Truth.assertThat(currentDetailState.time).isEqualTo(todo.time)
     }
 
+    @Test
+    fun detailViewModel_TimePropertyChanged_StateUpdated()  {
+        val viewModel = DetailViewModel(fakeTodoDataSource, id = todo.id)
+
+        var currentDetailState = viewModel.state.value
+        println("#######$currentDetailState")
+
+        viewModel.onTimeChange("${todo.time}1")
+        currentDetailState = viewModel.state.value
+        println("#######$currentDetailState")
+
+        Truth.assertThat(currentDetailState.selectId).isEqualTo(1L)
+        Truth.assertThat(currentDetailState.todo).isEqualTo(todo.todo)
+        Truth.assertThat(currentDetailState.time).isEqualTo("${todo.time}1")
+    }
+
+    @Test
+    fun detailViewModel_TextPropertyChanged_StateUpdated()  {
+        val viewModel = DetailViewModel(fakeTodoDataSource, id = todo.id)
+
+        var currentDetailState = viewModel.state.value
+        println("#######$currentDetailState")
+
+        viewModel.onTextChange("${todo.todo}o")
+        currentDetailState = viewModel.state.value
+        println("#######$currentDetailState")
+
+        Truth.assertThat(currentDetailState.selectId).isEqualTo(todo.id)
+        Truth.assertThat(currentDetailState.todo).isEqualTo("${todo.todo}o")
+        Truth.assertThat(currentDetailState.time).isEqualTo(todo.time)
+    }
+
+    @Test
+    fun detailViewModel_InsertTodo_SubMethodCalled()  {
+        val formedTodo = Todo("New todo", "1am")
+
+        val viewModel = createViewModelForCreate(fakeTodoDataSource)
+        val calledMethod = viewModel.insert(formedTodo)
+
+        Truth.assertThat(calledMethod.isCompleted).isTrue()
+    }
 }
 
 @ExperimentalCoroutinesApi
@@ -99,7 +139,7 @@ class CoroutinesTestRule(
     }
 }
 
-class MyFakeRepository(private val todos: List<Todo>) : TodoDataSourceContract {
+class MyFakeRepository(private var todos: List<Todo>) : TodoDataSourceContract {
 
     override fun getAllTodos(): Flow<List<Todo>> = flow {
         emit(todos)
@@ -109,14 +149,14 @@ class MyFakeRepository(private val todos: List<Todo>) : TodoDataSourceContract {
     }
 
     override suspend fun insertTodo(todo: Todo) {
-        TODO("Not yet implemented")
+        println("Todo with id=${todo.id} was received")
     }
 
     override suspend fun deleteTodo(todo: Todo) {
-        TODO("Not yet implemented")
+        println("Todo with id=${todo.id} was received")
     }
 
     override suspend fun updateTodo(isCompleted: Boolean, id: Long) {
-        TODO("Not yet implemented")
+        println("Todo with id=$id and status=$isCompleted was received")
     }
 }

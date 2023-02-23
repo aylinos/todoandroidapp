@@ -120,4 +120,6 @@ dependencies {
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines"
 
+    androidTestImplementation("org.assertj:assertj-core:3.8.0")
+
 }
