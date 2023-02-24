@@ -81,6 +81,18 @@ class DetailViewModelTest {
     }
 
     @Test
+    fun detailViewModel_NonExistentIdProvided_EmptyPageLoaded()  {
+        val viewModel = DetailViewModel(fakeTodoDataSource, id = 5)
+
+        var currentDetailState = viewModel.state.value
+        println("#######$currentDetailState")
+
+        Truth.assertThat(currentDetailState.selectId).isEqualTo(-1L)
+        Truth.assertThat(currentDetailState.todo).isEqualTo("")
+        Truth.assertThat(currentDetailState.time).isEqualTo("")
+    }
+
+    @Test
     fun detailViewModel_TimePropertyChanged_StateUpdated()  {
         val viewModel = DetailViewModel(fakeTodoDataSource, id = todo.id)
 

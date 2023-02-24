@@ -48,7 +48,7 @@ class TodoDataSourceTest {
 
     @Test
     @Throws(Exception::class)
-    fun getAllWords() = runBlocking {
+    fun getAllWords_DbHasElements_AllElementsReturned() = runBlocking {
         val todo1 = Todo("wash dishes", "12:30pm")
         todoDao.insert(todo1)
         val todo2 = Todo("clean floors", "13:00pm")
@@ -60,7 +60,14 @@ class TodoDataSourceTest {
 
     @Test
     @Throws(Exception::class)
-    fun deleteOneTodo() = runBlocking {
+    fun getAllWords_EmptyDb_EmptyListReturned() = runBlocking {
+        val todosList = todoDao.selectAll().first()
+        assertThat(todosList).isEmpty()
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteOneTodo_ValidIdProvided_TodoRemovedFromDb() = runBlocking {
         val todo1 = Todo("wash dishes", "12:30pm")
         todoDao.insert(todo1)
         val todo2 = Todo("clean floors", "13:00pm")
@@ -73,7 +80,21 @@ class TodoDataSourceTest {
 
     @Test
     @Throws(Exception::class)
-    fun deleteAll() = runBlocking {
+    fun deleteOneTodo_NonExistentIdProvided_NoChangeInDb() = runBlocking {
+        val todo1 = Todo("wash dishes", "12:30pm")
+        todoDao.insert(todo1)
+        val todo2 = Todo("clean floors", "13:00pm")
+        todoDao.insert(todo2)
+        todoDao.delete(3)
+        val todosList = todoDao.selectAll().first()
+        assertThat(todosList).hasSize(2)
+        assertThat(todosList[0].id).isEqualTo(1)
+        assertThat(todosList[1].id).isEqualTo(2)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteAll_DbHasElements_EmptiedDb() = runBlocking {
         val todo1 = Todo("wash dishes", "12:30pm")
         todoDao.insert(todo1)
         val todo2 = Todo("clean floors", "13:00pm")
@@ -85,7 +106,17 @@ class TodoDataSourceTest {
 
     @Test
     @Throws(Exception::class)
-    fun updateComplTodo() = runBlocking {
+    fun deleteAll_EmptyDb_NoChangeInDb() = runBlocking {
+        val todosListBefore = todoDao.selectAll().first()
+        todoDao.deleteAllTodo()
+        val todosListAfter = todoDao.selectAll().first()
+        assertThat(todosListBefore).isEmpty()
+        assertThat(todosListAfter).isEmpty()
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun updateComplTodo_ValidIdProvided_TodoComplUpdatedInDb() = runBlocking {
         var todo = Todo("wash dishes", "12:30pm")
         todoDao.insert(todo)
         todo = todoDao.selectAll().first()[0]
@@ -98,7 +129,22 @@ class TodoDataSourceTest {
 
     @Test
     @Throws(Exception::class)
-    fun updateTodo() = runBlocking {
+    fun updateComplTodo_NonExistentIdProvided_NoChangeInDb() = runBlocking {
+        var todo = Todo("wash dishes", "12:30pm")
+        todoDao.insert(todo)
+        todo = todoDao.selectAll().first()[0]
+        todoDao.updateComplTodo(true,2)
+        val allTodos = todoDao.selectAll().first()
+        val updatedTodo = allTodos[0]
+        assertThat(allTodos.size).isEqualTo(1)
+        assertThat(updatedTodo.isComplete).isFalse()
+        assertThat(updatedTodo.todo).isEqualTo(todo.todo)
+        assertThat(updatedTodo.time).isEqualTo(todo.time)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun updateTodo_ValidIdProvided_TodoUpdatedInDb() = runBlocking {
         var todo = Todo("wash dishes", "12:30pm")
         todoDao.insert(todo)
         todo = todoDao.selectAll().first()[0]
@@ -108,5 +154,25 @@ class TodoDataSourceTest {
         assertThat(updatedTodo.isComplete).isFalse()
         assertThat(updatedTodo.todo).isEqualTo("updated")
         assertThat(updatedTodo.time).isEqualTo(todo.time)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun updateTodo_NonExistentIdProvided_InsertInDb() = runBlocking {
+        var todo = Todo("wash dishes", "12:30pm")
+        todoDao.insert(todo)
+        var nonExistentTodo = Todo("updated", "12:45pm", false, id = 5)
+        todoDao.insert(nonExistentTodo)
+        val allTodos = todoDao.selectAll().first()
+        val existingTodo = allTodos[0]
+        val newTodo = allTodos[1]
+        assertThat(allTodos.size).isEqualTo(2)
+        assertThat(existingTodo.isComplete).isFalse()
+        assertThat(existingTodo.todo).isEqualTo(todo.todo)
+        assertThat(existingTodo.time).isEqualTo(todo.time)
+
+        assertThat(newTodo.id).isEqualTo(nonExistentTodo.id)
+        assertThat(newTodo.todo).isEqualTo(nonExistentTodo.todo)
+        assertThat(newTodo.time).isEqualTo(nonExistentTodo.time)
     }
 }
