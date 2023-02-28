@@ -1,6 +1,7 @@
 package com.example.todoapp.ui.detail
 
 import android.util.Log
+import androidx.annotation.NonNull
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
@@ -14,10 +15,18 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.data.Todo
+import com.example.todoapp.data.TodoFirebase
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 
 @Composable
 fun DetailScreen(
     selectedId: Long,
+    databaseReference: DatabaseReference,
     onNavigate: () -> Unit,
 ) {
     Log.d("DetailScreen", "Started detail screen with id: $selectedId")
@@ -31,7 +40,11 @@ fun DetailScreen(
         timeText = state.time,
         onTimeTextChange = { viewModel.onTimeChange(it) },
         onNavigate = { onNavigate() },
-        onSaveTodo = { viewModel.insert(it) },
+        onSaveTodo = { val todo1 = TodoFirebase(it.todo)
+//            val value = HashMap<String, String>();
+//            value["text"] = it.todo
+//            value["time"] = it.time
+            databaseReference.child("todos").setValue(todo1) },
         selectedId = state.selectId)
 }
 
@@ -45,6 +58,7 @@ fun DetailScreenComponent(
     onSaveTodo: (Todo) -> Unit,
     selectedId: Long,
 ) {
+
     val isTodoEdit = selectedId != -1L //if id==-1 => mode create, not edit
     Log.d("DetailScreenComponent", "Is it edit screen? : $isTodoEdit")
     Column(
@@ -80,6 +94,4 @@ fun DetailScreenComponent(
 
 
     }
-
-
 }

@@ -5,8 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
 //The repository where data can be fetched, use to access the todos
+//+ This class will have the business logic for fetching the data and caching it for offline access.
 open class TodoDataSource(private val todoDao: TodoDao) : TodoDataSourceContract {
-//    val selectAll = todoDao.selectAll()
+    private var items: ArrayList<Todo> = arrayListOf()
 
      override fun getAllTodos(): Flow<List<Todo>> { //flow represents asynchronous data stream
          //If you are using both suspend and livedata in one function signature you are just handling async operation twice and making excess headache for yourself-

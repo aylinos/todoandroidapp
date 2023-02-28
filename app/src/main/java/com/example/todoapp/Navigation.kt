@@ -9,6 +9,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.data.Todo
 import com.example.todoapp.ui.detail.DetailScreen
 import com.example.todoapp.ui.home.HomeScreen
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 sealed class NavRoute(val route: String) {
     object Home : NavRoute("home_route")
@@ -18,6 +21,8 @@ sealed class NavRoute(val route: String) {
 @Composable
 fun TodoNavHost() {
     val navController = rememberNavController()
+    val rootRef = FirebaseDatabase.getInstance("https://todo-app-f7567-default-rtdb.europe-west1.firebasedatabase.app").getReference("")
+    val todosRef = rootRef.child("todos")
 
     NavHost(
         navController = navController,
@@ -34,7 +39,7 @@ fun TodoNavHost() {
             NavRoute.Detail.route + "/{id}",
             arguments = listOf(navArgument("id") { type = NavType.LongType }),
         ) {
-            DetailScreen(selectedId = it.arguments?.getLong("id") ?: -1) {
+            DetailScreen(selectedId = it.arguments?.getLong("id") ?: -1, todosRef) {
                 navController.navigateUp()
             }
         }
