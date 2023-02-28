@@ -40,11 +40,17 @@ fun DetailScreen(
         timeText = state.time,
         onTimeTextChange = { viewModel.onTimeChange(it) },
         onNavigate = { onNavigate() },
-        onSaveTodo = { val todo1 = TodoFirebase(it.todo)
+        onSaveTodo = {
+//            val todo1 = TodoFirebase(it.todo)
 //            val value = HashMap<String, String>();
 //            value["text"] = it.todo
 //            value["time"] = it.time
-            databaseReference.child("todos").setValue(todo1) },
+            databaseReference
+                .child("todos")
+                .child("todo")
+                .child("text")
+                .setValue("neww")
+                     },
         selectedId = state.selectId)
 }
 
