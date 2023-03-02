@@ -6,6 +6,7 @@ import com.google.common.truth.Truth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
@@ -14,6 +15,7 @@ import org.junit.Test
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
@@ -51,7 +53,12 @@ class DetailViewModelTest {
 
     }
 
-    private var fakeTodoDataSource: TodoDataSourceContract = MyFakeRepository(listOf(todo, todo2))
+    private var fakeTodoDataSource: TodoDataSourceContract = Mockito.spy(
+        MyFakeRepository(listOf(todo, todo2))
+    )
+
+    private val anotherFakeTodoDataSource: TodoDataSourceContract =
+        Mockito.mock(TodoDataSourceContract::class.java)
 
     @get:Rule
     var coroutinesTestRule = CoroutinesTestRule()
@@ -125,13 +132,14 @@ class DetailViewModelTest {
     }
 
     @Test
-    fun detailViewModel_InsertTodo_SubMethodCalled()  {
+    fun detailViewModel_InsertTodo_SubMethodCalled() = runBlocking {
         val formedTodo = Todo("New todo", "1am")
 
-        val viewModel = createViewModelForCreate(fakeTodoDataSource)
+        val viewModel = createViewModelForCreate(anotherFakeTodoDataSource)
         val calledMethod = viewModel.insert(formedTodo)
 
         Truth.assertThat(calledMethod.isCompleted).isTrue()
+        Mockito.verify(anotherFakeTodoDataSource).insertTodo(formedTodo)
     }
 }
 
@@ -151,7 +159,7 @@ class CoroutinesTestRule(
     }
 }
 
-class MyFakeRepository(private var todos: List<Todo>) : TodoDataSourceContract {
+open class MyFakeRepository(private var todos: List<Todo>) : TodoDataSourceContract {
 
     override fun getAllTodos(): Flow<List<Todo>> = flow {
         emit(todos)
