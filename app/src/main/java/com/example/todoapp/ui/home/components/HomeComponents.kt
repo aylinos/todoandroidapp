@@ -10,7 +10,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.todoapp.data.Todo
+import com.example.todoapp.data.model.Todo
 
 //Represents a single item
 @Composable
@@ -33,13 +33,13 @@ fun TodoItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Checkbox(checked = todo.isComplete, onCheckedChange = { onChecked(it) })
+            Checkbox(checked = todo.complete, onCheckedChange = { onChecked(it) })
             Spacer(modifier = Modifier.size(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = todo.todo, style = MaterialTheme.typography.subtitle2)
+                todo.text?.let { Text(text = it, style = MaterialTheme.typography.subtitle2) }
                 Spacer(modifier = Modifier.size(16.dp))
                 CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                    Text(text = todo.time, style = MaterialTheme.typography.body2)
+                    Text(text = todo.time?:"None", style = MaterialTheme.typography.body2)
                 }
             }
             Spacer(modifier = Modifier.size(16.dp))

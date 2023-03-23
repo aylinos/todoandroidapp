@@ -1,5 +1,6 @@
-package com.example.todoapp.data
+package com.example.todoapp.data.room
 
+import com.example.todoapp.data.model.Todo
 import kotlinx.coroutines.flow.Flow
 
 interface TodoDataSourceContract {
@@ -9,5 +10,5 @@ interface TodoDataSourceContract {
 
     suspend fun deleteTodo(todo: Todo)
 
-    suspend fun updateTodo(isCompleted: Boolean, id: Long)
+    suspend fun getTodoById(id: String): Todo?
 }

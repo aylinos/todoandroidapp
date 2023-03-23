@@ -46,7 +46,7 @@ class ExampleInstrumentedTest {
         field.performTextInput("test todo 00100")
         button = activityRule.onNode(hasTestTag("createButtonTag"), useUnmergedTree = true)
         button.assertIsDisplayed()
-//        button.assertTextContains("Save")
+        button.assertTextContains("Save")
         button.performClick()
         val todosList = activityRule.onNode(hasTestTag("todosListTag"))
         Thread.sleep(3000)

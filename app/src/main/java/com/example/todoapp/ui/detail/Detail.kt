@@ -1,7 +1,8 @@
 package com.example.todoapp.ui.detail
 
+import android.os.Build
 import android.util.Log
-import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
@@ -14,19 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.todoapp.data.Todo
-import com.example.todoapp.data.TodoFirebase
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.Task
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
+import com.example.todoapp.data.model.Todo
 
+@RequiresApi(Build.VERSION_CODES.M)
 @Composable
 fun DetailScreen(
-    selectedId: Long,
-    databaseReference: DatabaseReference,
+    selectedId: String,
     onNavigate: () -> Unit,
 ) {
     Log.d("DetailScreen", "Started detail screen with id: $selectedId")
@@ -35,22 +29,15 @@ fun DetailScreen(
         factory = DetailViewModelFactory(selectedId)
     )
     val state by viewModel.state.collectAsState()
-    DetailScreenComponent(todoText = state.todo,
+    DetailScreenComponent(todoText = state.text,
         onTodoTextChange = { viewModel.onTextChange(it) },
         timeText = state.time,
         onTimeTextChange = { viewModel.onTimeChange(it) },
         onNavigate = { onNavigate() },
         onSaveTodo = {
-//            val todo1 = TodoFirebase(it.todo)
-//            val value = HashMap<String, String>();
-//            value["text"] = it.todo
-//            value["time"] = it.time
-            databaseReference
-                .child("todos")
-                .child("todo")
-                .child("text")
-                .setValue("neww")
-                     },
+            if(selectedId == "-1") viewModel.insertTodo(it)
+            else viewModel.updateTodo(it)
+        },
         selectedId = state.selectId)
 }
 
@@ -62,10 +49,10 @@ fun DetailScreenComponent(
     onTimeTextChange: (String) -> Unit,
     onNavigate: () -> Unit,
     onSaveTodo: (Todo) -> Unit,
-    selectedId: Long,
+    selectedId: String,
 ) {
-
-    val isTodoEdit = selectedId != -1L //if id==-1 => mode create, not edit
+//    val context = LocalContext.current
+    val isTodoEdit = selectedId != "-1" //if id==-1 => mode create, not edit
     Log.d("DetailScreenComponent", "Is it edit screen? : $isTodoEdit")
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -97,7 +84,5 @@ fun DetailScreenComponent(
             val text = if (isTodoEdit) "Update Todo" else "Save todo"
             Text(text = text)
         }
-
-
     }
 }
